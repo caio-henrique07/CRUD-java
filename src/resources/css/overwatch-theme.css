@@ -1,0 +1,123 @@
+/* overwatch-theme.css */
+/* Substituição completa do tema Modena para um estilo Flat e Geométrico */
+
+.root {
+    -fx-background-color: #f5f7fa;
+    -fx-font-family: 'BigNoodleTitling';
+    -fx-font-size: 16pt;
+}
+
+/* Estilização das Labels */
+.label {
+    -fx-text-fill: #2b303a;
+    -fx-font-weight: bold;
+}
+
+/* Campos de Texto (TextField) */
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 4;
+    -fx-border-color: #ccd1d9;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: #2b303a;
+}
+
+.text-field:focused {
+    -fx-border-color: #f99e1a; /* Laranja Overwatch */
+    -fx-background-color: #ffffff;
+}
+
+/* Configuração Base dos Botões */
+.button {
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-padding: 8 16 8 16;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* Classes Customizadas para os Botões do CRUD */
+.btn-cadastrar {
+    -fx-background-color: #2ecc71; /* Verde Flat */
+}
+.btn-cadastrar:hover {
+    -fx-background-color: #27ae60;
+}
+
+.btn-editar {
+    -fx-background-color: #3498db; /* Azul Flat */
+}
+.btn-editar:hover {
+    -fx-background-color: #2980b9;
+}
+
+.btn-remover {
+    -fx-background-color: #e74c3c; /* Vermelho Flat */
+}
+.btn-remover:hover {
+    -fx-background-color: #c0392b;
+}
+
+.btn-limpar {
+    -fx-background-color: #f99e1a; /* Laranja Overwatch */
+}
+.btn-limpar:hover {
+    -fx-background-color: #d68110;
+}
+
+/* Estilização da Tabela (TableView) */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #ccd1d9;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 0;
+}
+
+/* Cabeçalho da Tabela */
+.table-view .column-header-background {
+    -fx-background-color: #2b303a; /* Cinza Escuro Métrico */
+    -fx-background-radius: 4 4 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 38;
+    -fx-border-color: #3f444e;
+    -fx-border-width: 0 1 0 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+/* Linhas da Tabela */
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e6e9ed;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Linhas Alternadas (Zebra) */
+.table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+/* Linha Selecionada */
+.table-row-cell:selected {
+    -fx-background-color: #e6f2ff;
+}
+
+.table-row-cell:selected .label {
+    -fx-text-fill: #2b303a;
+}
+
+/* Texto de Tabela Vazia */
+.table-view .placeholder .label {
+    -fx-text-fill: #aab2bd;
+    -fx-font-weight: normal;
+}
