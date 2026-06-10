@@ -12,7 +12,7 @@ public class HeroisDAO {
     public void inserir(HeroisDTO h) {
         String sql = "INSERT INTO herois (nome, funcao, nacionalidade, vida) VALUES (?, ?, ?, ?)";
 
-        try (Connection con = Conexao.conectaBD();
+        try (Connection con = Conexao.obterConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, h.getNome());
@@ -28,11 +28,11 @@ public class HeroisDAO {
     }
 
     // READ (listar todos)
-    public List<HeroisDTO> listar() {
-        List<HeroisDTO> lista = new ArrayList<>();
+    public ArrayList<HeroisDTO> listar() {
+        ArrayList<HeroisDTO> lista = new ArrayList<>();
         String sql = "SELECT * FROM herois";
 
-        try (Connection con = Conexao.conectaBD();
+        try (Connection con = Conexao.obterConexao();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -59,7 +59,7 @@ public class HeroisDAO {
     public void atualizar(HeroisDTO h) {
         String sql = "UPDATE herois SET nome=?, funcao=?, nacionalidade=?, vida=? WHERE id=?";
 
-        try (Connection con = Conexao.conectaBD();
+        try (Connection con = Conexao.obterConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, h.getNome());
@@ -79,7 +79,7 @@ public class HeroisDAO {
     public void excluir(int id) {
         String sql = "DELETE FROM herois WHERE id=?";
 
-        try (Connection con = Conexao.conectaBD();
+        try (Connection con = Conexao.obterConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
