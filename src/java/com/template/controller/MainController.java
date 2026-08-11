@@ -3,10 +3,12 @@ package com.template.controller;
 import com.template.model.dao.HeroisDAO;
 import com.template.model.dto.HeroisDTO;
 import com.template.util.DialogUtil;
+import com.template.validator.HeroiValidator;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -16,7 +18,8 @@ import java.util.ArrayList;
 public class MainController {
 
     @FXML private Button btnCadastrar, btnLimpar, btnEditar, btnRemover;
-    @FXML private TextField txtId, txtNome, txtFuncao, txtNacionalidade, txtVida;
+    @FXML private TextField txtId, txtNome, txtNacionalidade, txtVida;
+    @FXML private ComboBox<String> cmbFuncao;
     @FXML private TableView<HeroisDTO> tblHerois;
 
     @FXML private TableColumn<HeroisDTO, Integer> colId;
@@ -26,71 +29,98 @@ public class MainController {
     @FXML private TableColumn<HeroisDTO, Integer> colVida;
 
     @FXML
+    public void initialize() {
+        // Inicializa opções da ComboBox
+        cmbFuncao.setItems(FXCollections.observableArrayList("DANO", "SUPORTE", "TANQUE"));
+
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colFuncao.setCellValueFactory(new PropertyValueFactory<>("funcao"));
+        colNacionalidade.setCellValueFactory(new PropertyValueFactory<>("nacionalidade"));
+        colVida.setCellValueFactory(new PropertyValueFactory<>("vida"));
+
+        carregarHerois();
+
+        // Listener para popular os campos ao clicar em uma linha
+        tblHerois.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                preencherCampos(newValue);
+            }
+        });
+    }
+
+    private void preencherCampos(HeroisDTO heroi) {
+        txtId.setText(String.valueOf(heroi.getId()));
+        txtNome.setText(heroi.getNome());
+        cmbFuncao.setValue(heroi.getFuncao());
+        txtNacionalidade.setText(heroi.getNacionalidade());
+        txtVida.setText(String.valueOf(heroi.getVida()));
+    }
+
+    @FXML
     private void btnCadastrarAction(ActionEvent event) {
-        // Valida campos vazios
-        if (txtNome.getText().isEmpty() || txtVida.getText().isEmpty()) {
-            DialogUtil.alertEmptyFields();
+        String funcaoSelecionada = cmbFuncao.getValue() != null ? cmbFuncao.getValue() : "";
+
+        if (!HeroiValidator.validarCadastro(
+                txtNome.getText(),
+                funcaoSelecionada,
+                txtNacionalidade.getText(),
+                txtVida.getText())) {
             return;
         }
 
-        try {
-            HeroisDTO objHeroiDTO = new HeroisDTO();
-            objHeroiDTO.setNome(txtNome.getText());
-            objHeroiDTO.setFuncao(txtFuncao.getText());
-            objHeroiDTO.setNacionalidade(txtNacionalidade.getText());
-            objHeroiDTO.setVida(Integer.parseInt(txtVida.getText()));
+        HeroisDTO objHeroiDTO = new HeroisDTO();
+        objHeroiDTO.setNome(txtNome.getText().trim());
+        objHeroiDTO.setFuncao(funcaoSelecionada);
+        objHeroiDTO.setNacionalidade(txtNacionalidade.getText().trim());
+        objHeroiDTO.setVida(Integer.parseInt(txtVida.getText().trim()));
 
-            HeroisDAO objHeroiDAO = new HeroisDAO();
-            objHeroiDAO.inserir(objHeroiDTO);
+        HeroisDAO objHeroiDAO = new HeroisDAO();
+        objHeroiDAO.inserir(objHeroiDTO);
 
-            // Alerta de sucesso específico
-            DialogUtil.alertSuccess("cadastrado", txtNome.getText());
+        DialogUtil.alertSuccess("cadastrado", txtNome.getText());
 
-            carregarHerois();
-            btnLimparAction(event);
-
-        } catch (NumberFormatException e) {
-            // Alerta de erro de número específico
-            DialogUtil.alertInvalidValue("Vida");
-        }
+        carregarHerois();
+        btnLimparAction(event);
     }
 
     @FXML
     private void btnLimparAction(ActionEvent event) {
         txtId.clear();
         txtNome.clear();
-        txtFuncao.clear();
+        cmbFuncao.setValue(null);
         txtNacionalidade.clear();
         txtVida.clear();
+        tblHerois.getSelectionModel().clearSelection();
     }
 
     @FXML
     private void btnEditarAction(ActionEvent event) {
-        if (txtId.getText().isEmpty()) {
-            DialogUtil.alertNoneSelected("editar");
+        String funcaoSelecionada = cmbFuncao.getValue() != null ? cmbFuncao.getValue() : "";
+
+        if (!HeroiValidator.validarEdicao(
+                txtId.getText(),
+                txtNome.getText(),
+                funcaoSelecionada,
+                txtNacionalidade.getText(),
+                txtVida.getText())) {
             return;
         }
 
-        try {
-            HeroisDTO objHeroisDTO = new HeroisDTO();
-            objHeroisDTO.setId(Integer.parseInt(txtId.getText()));
-            objHeroisDTO.setNome(txtNome.getText());
-            objHeroisDTO.setFuncao(txtFuncao.getText());
-            objHeroisDTO.setNacionalidade(txtNacionalidade.getText());
-            objHeroisDTO.setVida(Integer.parseInt(txtVida.getText()));
+        HeroisDTO objHeroisDTO = new HeroisDTO();
+        objHeroisDTO.setId(Integer.parseInt(txtId.getText().trim()));
+        objHeroisDTO.setNome(txtNome.getText().trim());
+        objHeroisDTO.setFuncao(funcaoSelecionada);
+        objHeroisDTO.setNacionalidade(txtNacionalidade.getText().trim());
+        objHeroisDTO.setVida(Integer.parseInt(txtVida.getText().trim()));
 
-            HeroisDAO objHeroisDAO = new HeroisDAO();
-            objHeroisDAO.atualizar(objHeroisDTO);
+        HeroisDAO objHeroisDAO = new HeroisDAO();
+        objHeroisDAO.atualizar(objHeroisDTO);
 
-            // Alerta de sucesso específico
-            DialogUtil.alertSuccess("atualizado", txtNome.getText());
+        DialogUtil.alertSuccess("atualizado", txtNome.getText());
 
-            carregarHerois();
-            btnLimparAction(event);
-
-        } catch (NumberFormatException e) {
-            DialogUtil.alertInvalidValue("Vida ou ID");
-        }
+        carregarHerois();
+        btnLimparAction(event);
     }
 
     @FXML
@@ -102,7 +132,6 @@ public class MainController {
             return;
         }
 
-        // Confirmação de exclusão
         if (DialogUtil.alertExclude(heroiSelecionado.getNome())) {
             HeroisDAO objHeroisDAO = new HeroisDAO();
             objHeroisDAO.excluir(heroiSelecionado.getId());
@@ -115,20 +144,9 @@ public class MainController {
     }
 
     @FXML
-    private void carregarHerois(){
+    private void carregarHerois() {
         HeroisDAO heroisDAO = new HeroisDAO();
         ArrayList<HeroisDTO> lista = heroisDAO.listar();
         tblHerois.setItems(FXCollections.observableArrayList(lista));
-    }
-
-    @FXML
-    public void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colFuncao.setCellValueFactory(new PropertyValueFactory<>("funcao"));
-        colNacionalidade.setCellValueFactory(new PropertyValueFactory<>("nacionalidade"));
-        colVida.setCellValueFactory(new PropertyValueFactory<>("vida"));
-
-        carregarHerois();
     }
 }
