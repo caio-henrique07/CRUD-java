@@ -1,9 +1,10 @@
 package com.template.controller;
 
-import com.template.model.dao.HeroisDAO;
 import com.template.model.dto.HeroisDTO;
+import com.template.service.HeroiService;
 import com.template.util.DialogUtil;
 import com.template.validator.HeroiValidator;
+import com.template.view.FormularioHeroi;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +17,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.ArrayList;
 
 public class MainController {
+
+    private final HeroiService heroiService = new HeroiService();
+    private FormularioHeroi formulario;
 
     @FXML private Button btnCadastrar, btnLimpar, btnEditar, btnRemover;
     @FXML private TextField txtId, txtNome, txtNacionalidade, txtVida;
@@ -30,6 +34,8 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        formulario = new FormularioHeroi(txtId, txtNome, cmbFuncao, txtNacionalidade, txtVida);
+
         // Inicializa opções da ComboBox
         cmbFuncao.setItems(FXCollections.observableArrayList("DANO", "SUPORTE", "TANQUE"));
 
@@ -44,22 +50,14 @@ public class MainController {
         // Listener para popular os campos ao clicar em uma linha
         tblHerois.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                preencherCampos(newValue);
+                formulario.preencher(newValue);
             }
         });
     }
 
-    private void preencherCampos(HeroisDTO heroi) {
-        txtId.setText(String.valueOf(heroi.getId()));
-        txtNome.setText(heroi.getNome());
-        cmbFuncao.setValue(heroi.getFuncao());
-        txtNacionalidade.setText(heroi.getNacionalidade());
-        txtVida.setText(String.valueOf(heroi.getVida()));
-    }
-
     @FXML
     private void btnCadastrarAction(ActionEvent event) {
-        String funcaoSelecionada = cmbFuncao.getValue() != null ? cmbFuncao.getValue() : "";
+        String funcaoSelecionada = formulario.obterFuncaoSelecionada();
 
         if (!HeroiValidator.validarCadastro(
                 txtNome.getText(),
@@ -69,14 +67,9 @@ public class MainController {
             return;
         }
 
-        HeroisDTO objHeroiDTO = new HeroisDTO();
-        objHeroiDTO.setNome(txtNome.getText().trim());
-        objHeroiDTO.setFuncao(funcaoSelecionada);
-        objHeroiDTO.setNacionalidade(txtNacionalidade.getText().trim());
-        objHeroiDTO.setVida(Integer.parseInt(txtVida.getText().trim()));
+        HeroisDTO objHeroiDTO = formulario.obterDados();
 
-        HeroisDAO objHeroiDAO = new HeroisDAO();
-        objHeroiDAO.inserir(objHeroiDTO);
+        heroiService.cadastrar(objHeroiDTO);
 
         DialogUtil.alertSuccess("cadastrado", txtNome.getText());
 
@@ -86,17 +79,13 @@ public class MainController {
 
     @FXML
     private void btnLimparAction(ActionEvent event) {
-        txtId.clear();
-        txtNome.clear();
-        cmbFuncao.setValue(null);
-        txtNacionalidade.clear();
-        txtVida.clear();
+        formulario.limpar();
         tblHerois.getSelectionModel().clearSelection();
     }
 
     @FXML
     private void btnEditarAction(ActionEvent event) {
-        String funcaoSelecionada = cmbFuncao.getValue() != null ? cmbFuncao.getValue() : "";
+        String funcaoSelecionada = formulario.obterFuncaoSelecionada();
 
         if (!HeroiValidator.validarEdicao(
                 txtId.getText(),
@@ -107,15 +96,10 @@ public class MainController {
             return;
         }
 
-        HeroisDTO objHeroisDTO = new HeroisDTO();
+        HeroisDTO objHeroisDTO = formulario.obterDados();
         objHeroisDTO.setId(Integer.parseInt(txtId.getText().trim()));
-        objHeroisDTO.setNome(txtNome.getText().trim());
-        objHeroisDTO.setFuncao(funcaoSelecionada);
-        objHeroisDTO.setNacionalidade(txtNacionalidade.getText().trim());
-        objHeroisDTO.setVida(Integer.parseInt(txtVida.getText().trim()));
 
-        HeroisDAO objHeroisDAO = new HeroisDAO();
-        objHeroisDAO.atualizar(objHeroisDTO);
+        heroiService.atualizar(objHeroisDTO);
 
         DialogUtil.alertSuccess("atualizado", txtNome.getText());
 
@@ -133,8 +117,7 @@ public class MainController {
         }
 
         if (DialogUtil.alertExclude(heroiSelecionado.getNome())) {
-            HeroisDAO objHeroisDAO = new HeroisDAO();
-            objHeroisDAO.excluir(heroiSelecionado.getId());
+            heroiService.remover(heroiSelecionado.getId());
 
             DialogUtil.alertSuccess("removido", heroiSelecionado.getNome());
 
@@ -145,8 +128,7 @@ public class MainController {
 
     @FXML
     private void carregarHerois() {
-        HeroisDAO heroisDAO = new HeroisDAO();
-        ArrayList<HeroisDTO> lista = heroisDAO.listar();
+        ArrayList<HeroisDTO> lista = heroiService.listar();
         tblHerois.setItems(FXCollections.observableArrayList(lista));
     }
 }
