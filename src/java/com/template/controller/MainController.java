@@ -4,6 +4,7 @@ import com.template.model.dto.HeroisDTO;
 import com.template.service.HeroiService;
 import com.template.util.DialogUtil;
 import com.template.validator.HeroiValidator;
+import com.template.validator.IHeroiValidator;
 import com.template.view.FormularioHeroi;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class MainController {
 
     private final HeroiService heroiService = new HeroiService();
+    private final IHeroiValidator heroiValidator = new HeroiValidator();
     private FormularioHeroi formulario;
 
     @FXML private Button btnCadastrar, btnLimpar, btnEditar, btnRemover;
@@ -36,7 +38,6 @@ public class MainController {
     public void initialize() {
         formulario = new FormularioHeroi(txtId, txtNome, cmbFuncao, txtNacionalidade, txtVida);
 
-        // Inicializa opções da ComboBox
         cmbFuncao.setItems(FXCollections.observableArrayList("DANO", "SUPORTE", "TANQUE"));
 
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -47,7 +48,6 @@ public class MainController {
 
         carregarHerois();
 
-        // Listener para popular os campos ao clicar em uma linha
         tblHerois.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 formulario.preencher(newValue);
@@ -59,7 +59,7 @@ public class MainController {
     private void btnCadastrarAction(ActionEvent event) {
         String funcaoSelecionada = formulario.obterFuncaoSelecionada();
 
-        if (!HeroiValidator.validarCadastro(
+        if (!heroiValidator.validarCadastro(
                 txtNome.getText(),
                 funcaoSelecionada,
                 txtNacionalidade.getText(),
@@ -87,7 +87,7 @@ public class MainController {
     private void btnEditarAction(ActionEvent event) {
         String funcaoSelecionada = formulario.obterFuncaoSelecionada();
 
-        if (!HeroiValidator.validarEdicao(
+        if (!heroiValidator.validarEdicao(
                 txtId.getText(),
                 txtNome.getText(),
                 funcaoSelecionada,
